@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="en">
+<% include ../partials/head.ejs %>
+
+<body data-sa-theme="3">
+<% include ../partials/header.ejs %>
+<% include ../partials/sidebar.ejs %>
+
+<section class="content">
+    <div class="content__inner">
+        <header class="content__title">
+            <h1><%= i18n.__('Auto Capture User') %></h1>
+        </header>
+        <div class="card">
+            <div class="card-body">
+                <div class="text-right mb-3">
+                    <div class="row">
+                        <div class="col-sm-7">
+
+                        </div>
+                        <div class="col-sm-3">
+                            <div class="form-group">
+                                <input type="text" class="form-control" id="user_name" placeholder="Twitter User Name">
+                            </div>
+                        </div>
+                        <div class="col-sm-2">
+                            <div class="form-group">
+                                <button class="btn btn-success" id="btn_add_user" onclick="addUser()">Add User</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="table-responsive data-table">
+                    <table id="data-table" class="table table-bordered text-center">
+                        <thead>
+                        <tr>
+                            <th style="color: yellow">User Name</th>
+                            <th style="color: yellow">Delete</th>
+                        </tr>
+                        </thead>
+                        <tbody id="list_auto_user">
+                        <% for (var i = 0;i < auto_users.length;i++){ %>
+                            <tr id="<%= auto_users[i].id %>">
+                                <td>
+                                    <%= auto_users[i].user_name %>
+                                </td>
+                                <td>
+                                    <button class="btn btn-outline-danger" onclick="deleteUser('<%= auto_users[i].id %>')">Delete</button>
+                                </td>
+                            </tr>
+                        <% } %>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- remove modal -->
+<div class="modal fade" id="modal_delete_message" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header"></div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <i class="zwicon-info-circle" style="font-size: 7rem"></i>
+                </div>
+                <div class="form-group">
+                    <h3><%= i18n.__('Are you sure to remove?') %></h3>
+                </div>
+                <input type="hidden" id="modal_delete_type">
+                <input type="hidden" id="modal_delete_id">
+                <button type="button" class="btn btn-link" onclick="onDeleteBtn()"><%= i18n.__('Remove') %></button>
+                <button type="button" class="btn btn-link" data-dismiss="modal"><%= i18n.__('Cancel') %></button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<% include ../partials/footer.ejs %>
+<% include ../partials/foot.ejs %>
+<script>
+    let auto_users = JSON.parse(`<%- JSON.stringify(auto_users) %>`);
+    $(document).ready(function () {
+    });
+
+    function addUser() {
+        let user_name = $('#user_name').val();
+        if (user_name == "") {
+            customAlert("Please input all capture index data!");
+            return;
+        }
+        let data = {
+            user_name: user_name,
+        };
+        let url = "/admin/add_auto_capture_user";
+        $.ajax({
+            url: url,
+            method: 'post',
+            data: data,
+            success: function (res) {
+                if (res.status === 'success') {
+                    customAlert(res.message, true);
+                    let new_user = res.new_user;
+                    let new_user_tag = '<tr id="' + new_user.id + '">\n' +
+                        '   <td>' + new_user.user_name + '</td>\n' +
+                        '   <td><button class="btn btn-outline-danger" onclick="deleteUser(\'' + new_user.id + '\')">Delete</button></td>\n' +
+                        '</tr>';
+                    $('#list_auto_user').prepend(new_user_tag);
+                    $('#user_name').val('');
+                    auto_users.push(new_user);
+                } else customAlert(res.message);
+            }
+        })
+    }
+
+    function deleteUser(id) {
+        $('#modal_delete_id').val(id);
+        $('#modal_delete_message').modal();
+    }
+
+    function onDeleteBtn() {
+        $('#modal_delete_message').modal('hide');
+        let id = $('#modal_delete_id').val();
+        let data = {
+            id: id,
+        };
+        let url = "/admin/delete_auto_capture_user";
+        $.ajax({
+            url: url,
+            method: 'post',
+            data: data,
+            success: function (res) {
+                if (res.status === 'success') {
+                    customAlert(res.message, true);
+                    $('#' + id).remove();
+                } else customAlert(res.message);
+            }
+        })
+    }
+</script>
+</body>
+</html>

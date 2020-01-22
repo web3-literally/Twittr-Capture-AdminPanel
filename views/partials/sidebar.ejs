@@ -1,0 +1,32 @@
+<aside class="sidebar ">
+    <div class="scrollbar">
+        <div class="user">
+            <div class="user__info">
+                <img class="user__img" src="<%= user.avatar %>" alt="Twitter-Capture Logo">
+                <div style="word-break: break-all">
+                    <div class="user__name"><%= user.username %></div>
+                    <div class="user__email"><%= user.email %></div>
+                </div>
+            </div>
+        </div>
+
+        <ul class="navigation">
+            <% if(session.user.role == 0 || session.user.role == 1) { %>
+                <li class="<%= (tab_text == 'twitter_capture') ? 'navigation__active' : '' %>">
+                    <a href="/admin/dashboard"><i class="zwicon-tray-import"></i> <%= i18n.__('Twitter Capture') %></a>
+                </li>
+                <li class="<%= (tab_text == 'auto_capture') ? 'navigation__active' : '' %>">
+                    <a href="/admin/auto-capture"><i class="zwicon-user-follow"></i> <%= i18n.__('Auto Capture User') %></a>
+                </li>
+            <% } %>
+
+            <li class="<%= (tab_text === 'settings') ? 'navigation__active' : '' %>">
+                <a href="/admin/account-settings"><i class="zwicon-cog"></i> <%= i18n.__('Account Settings') %></a>
+            </li>
+
+            <li>
+                <a href="/auth/logout"><i class="zwicon-arrow-circle-right"></i> <%= i18n.__('Logout') %></a>
+            </li>
+        </ul>
+    </div>
+</aside>

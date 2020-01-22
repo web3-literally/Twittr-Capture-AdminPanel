@@ -1,0 +1,58 @@
+<div class="page-loader">
+    <div class="page-loader__spinner">
+        <svg viewBox="25 25 50 50">
+            <circle cx="50" cy="50" r="20" fill="none" stroke-width="2" stroke-miterlimit="10" />
+        </svg>
+    </div>
+</div>
+<style>
+    .top-nav>li>a:not(.header__nav__text) {
+        padding: .6rem 1rem;
+    }
+</style>
+
+<header class="header">
+    <div class="navigation-trigger d-xl-none" data-sa-action="aside-open" data-sa-target=".sidebar">
+        <i class="zwicon-hamburger-menu"></i>
+    </div>
+
+    <div class="logo d-none d-sm-inline-flex">
+        <a href="/"><img src="/images/logo.png" width="170"></a>
+    </div>
+    <form class="search">
+        <div class="search__inner">
+            <input type="text" class="search__text" placeholder="Search for people, files, documents...">
+            <i class="zwicon-search search__helper"></i>
+            <i class="zwicon-arrow-left search__reset" data-sa-action="search-close"></i>
+        </div>
+    </form>
+    <ul class="top-nav row">
+        <li class="d-none d-sm-inline-block">
+            <a href="" class="top-nav__themes" data-sa-action="aside-open" data-sa-target=".themes"><i class="zwicon-palette"></i></a>
+        </li>
+        <div class="clock d-none d-md-inline-block">
+            <div class="time">
+                <span class="time__hours"></span>
+                <span class="time__min"></span>
+                <span class="time__sec"></span>
+            </div>
+        </div>
+        <li class="d-none d-sm-inline-block">
+            <a href="/auth/logout"><i class="zwicon-sign-out"></i></a>
+        </li>
+    </ul>
+</header>
+<div class="themes">
+    <div class="scrollbar">
+        <a href="" class="themes__item active" data-sa-value="1"><img src="/resources/img/bg/1.jpg" alt=""></a>
+        <a href="" class="themes__item" data-sa-value="2"><img src="/resources/img/bg/2.jpg" alt=""></a>
+        <a href="" class="themes__item" data-sa-value="3"><img src="/resources/img/bg/3.jpg" alt=""></a>
+        <a href="" class="themes__item" data-sa-value="4"><img src="/resources/img/bg/4.jpg" alt=""></a>
+        <a href="" class="themes__item" data-sa-value="5"><img src="/resources/img/bg/5.jpg" alt=""></a>
+        <a href="" class="themes__item" data-sa-value="6"><img src="/resources/img/bg/6.jpg" alt=""></a>
+        <a href="" class="themes__item" data-sa-value="7"><img src="/resources/img/bg/7.jpg" alt=""></a>
+        <a href="" class="themes__item" data-sa-value="8"><img src="/resources/img/bg/8.jpg" alt=""></a>
+        <a href="" class="themes__item" data-sa-value="9"><img src="/resources/img/bg/9.jpg" alt=""></a>
+        <a href="" class="themes__item" data-sa-value="10"><img src="/resources/img/bg/10.jpg" alt=""></a>
+    </div>
+</div>

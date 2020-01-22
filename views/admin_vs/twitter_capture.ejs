@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="en">
+<% include ../partials/head.ejs %>
+
+<body data-sa-theme="3">
+<% include ../partials/header.ejs %>
+<% include ../partials/sidebar.ejs %>
+
+<section class="content">
+    <div class="content__inner">
+        <header class="content__title">
+            <h1><%= i18n.__('Twitter Capture') %></h1>
+        </header>
+        <div class="card">
+            <div class="card-body">
+                <div class="text-right mb-3">
+                    <div class="row">
+                        <div class="col-sm-3">
+                            <div class="form-group">
+                                <input type="text" class="form-control" id="user_name" placeholder="Twitter User Name">
+                            </div>
+                        </div>
+
+                        <div class="col-sm-3">
+                            <div class="form-group">
+                                <input type="text" class="form-control date-picker" id="from_date" placeholder="From">
+                            </div>
+                        </div>
+
+                        <div class="col-sm-3">
+                            <div class="form-group">
+                                <input type="text" class="form-control date-picker" id="to_date" placeholder="To">
+                            </div>
+                        </div>
+
+                        <div class="col-sm-3">
+                            <div class="form-group">
+                                <button class="btn btn-success" id="btn_capture" onclick="startCapture()">Capture To PDF</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="table-responsive data-table">
+                    <table id="data-table" class="table table-bordered text-center">
+                        <thead>
+                        <tr>
+                            <th style="color: yellow">Auto Mode</th>
+                            <th style="color: yellow">Capture Date</th>
+                            <th style="color: yellow">User Name</th>
+                            <th style="color: yellow">From ~ To</th>
+                            <th style="color: yellow">PDF</th>
+                            <th style="color: yellow">Delete</th>
+                        </tr>
+                        </thead>
+                        <tbody id="list_twitter_pdf">
+                        <% for (var i = 0;i < twitter_captures.length;i++){ %>
+                            <tr id="<%= twitter_captures[i].id %>">
+                                <td>
+                                    <% if(twitter_captures[i].auto_mode){ %>
+                                        <i style="font-size: 20px;" class="zwicon-clock"></i>
+                                    <% } %>
+                                </td>
+                                <td>
+                                    <%= twitter_captures[i].capture_date %>
+                                </td>
+                                <td>
+                                    <%= twitter_captures[i].user_name %>
+                                </td>
+                                <td>
+                                    <%= twitter_captures[i].from_date %>
+                                    ~
+                                    <%= twitter_captures[i].to_date %>
+                                </td>
+                                <td class="pdf_name">
+                                    <% if(twitter_captures[i].pdf_name) { %>
+                                        <a class="btn btn-outline-success" href="http://13.230.71.19/tweet/<%= twitter_captures[i].pdf_name %>" target="_blank">
+                                            <%= twitter_captures[i].pdf_name %>
+                                        </a>
+                                    <% } else { %>
+                                        <img width="50px" src="/assets/loading.gif">
+                                    <% } %>
+                                </td>
+                                <td>
+                                    <button class="btn btn-outline-danger" onclick="deleteCapture('<%= twitter_captures[i].id %>')">Delete</button>
+                                </td>
+                            </tr>
+                        <% } %>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- remove modal -->
+<div class="modal fade" id="modal_delete_message" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header"></div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <i class="zwicon-info-circle" style="font-size: 7rem"></i>
+                </div>
+                <div class="form-group">
+                    <h3><%= i18n.__('Are you sure to remove?') %></h3>
+                </div>
+                <input type="hidden" id="modal_delete_type">
+                <input type="hidden" id="modal_delete_id">
+                <button type="button" class="btn btn-link" onclick="onDeleteBtn()"><%= i18n.__('Remove') %></button>
+                <button type="button" class="btn btn-link" data-dismiss="modal"><%= i18n.__('Cancel') %></button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<% include ../partials/footer.ejs %>
+<% include ../partials/foot.ejs %>
+<script>
+    let twitter_captures = JSON.parse(`<%- JSON.stringify(twitter_captures) %>`);
+    $(document).ready(function () {
+    });
+
+    function startCapture() {
+        let user_name = $('#user_name').val();
+        let from_date = $('#from_date').val();
+        let to_date = $('#to_date').val();
+        if (user_name == "" || from_date == "" || to_date == "") {
+            customAlert("Please input all capture index data!");
+            return;
+        }
+        // if (new Date(from_date) > new Date() || new Date(to_date) > new Date()) {
+        //     customAlert("From and To Date must be less than current date!");
+        //     return;
+        // }
+        if (new Date(from_date) > new Date(to_date)) {
+            customAlert("Please input correct from and to date!");
+            return;
+        }
+        let data = {
+            user_name: user_name,
+            from_date: from_date,
+            to_date: to_date,
+        };
+        let url = "/admin/start_twitter_capture";
+        $.ajax({
+            url: url,
+            method: 'post',
+            data: data,
+            success: function (res) {
+                if (res.status === 'success') {
+                    customAlert(res.message, true);
+                    let new_capture = res.new_capture;
+                    let new_capture_tag = '<tr id="' + new_capture.id + '">\n' +
+                        '   <td></td>\n' +
+                        '   <td>' + new_capture.capture_date + '</td>\n' +
+                        '   <td>' + new_capture.user_name + '</td>\n' +
+                        '   <td>' + new_capture.from_date + '~' + new_capture.to_date + '</td>\n' +
+                        '   <td class="pdf_name"><img width="50px" src="/assets/loading.gif"></td>\n' +
+                        '   <td><button class="btn btn-outline-danger" onclick="deleteCapture(\'' + new_capture.id + '\')">Delete</button></td>\n' +
+                        '</tr>';
+                    $('#list_twitter_pdf').prepend(new_capture_tag);
+                    $('#user_name').val('');
+                    $('#from_date').val('');
+                    $('#to_date').val('');
+                    twitter_captures.push(new_capture);
+                } else customAlert(res.message);
+            }
+        })
+    }
+
+    function deleteCapture(id) {
+        $('#modal_delete_id').val(id);
+        $('#modal_delete_message').modal();
+    }
+
+    function onDeleteBtn() {
+        $('#modal_delete_message').modal('hide');
+        let id = $('#modal_delete_id').val();
+        let data = {
+            id: id,
+        };
+        let url = "/admin/delete_twitter_capture";
+        $.ajax({
+            url: url,
+            method: 'post',
+            data: data,
+            success: function (res) {
+                if (res.status === 'success') {
+                    customAlert(res.message, true);
+                    $('#' + id).remove();
+                } else customAlert(res.message);
+            }
+        })
+    }
+
+    setInterval(function () {
+        let list_pendding_ids = [];
+        for (var i = 0; i < twitter_captures.length; i++) {
+            if (!twitter_captures[i].pdf_name) {
+                list_pendding_ids.push(twitter_captures[i].id);
+            }
+        }
+        let data = {
+            list_pendding_ids: list_pendding_ids
+        };
+        let url = "/api/check_finished_capture";
+        $.ajax({
+            url: url,
+            method: 'post',
+            data: data,
+            success: function (res) {
+                if (res.status === 'success') {
+                    let finshed_captures = res.finshed_captures;
+                    let keys = Object.keys(finshed_captures);
+                    for (let i = 0; i < keys.length; i++) {
+                        let key = keys[i];
+                        let pdf_name = finshed_captures[key];
+                        let pdf_tag = '<a class="btn btn-outline-success" href="http://13.230.71.19/tweet/' + pdf_name + '" target="_blank">' + pdf_name + '</a>';
+                        $('#' + key + ' .pdf_name').empty();
+                        $('#' + key + ' .pdf_name').append(pdf_tag);
+                        twitter_captures.find(x => x.id == key).pdf_name = pdf_name;
+                        customAlert('Congratulation! Updated Some PDF!', true);
+                    }
+                }
+            }
+        })
+    }, 5000);
+</script>
+</body>
+</html>
