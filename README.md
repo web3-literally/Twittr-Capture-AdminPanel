@@ -1,1 +1,1 @@
-# Kyomaru-Twittr-Capture-AdminPanel
+# Twittr-Capture-AdminPanel
